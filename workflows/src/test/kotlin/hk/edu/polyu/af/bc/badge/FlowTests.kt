@@ -16,8 +16,8 @@ class FlowTests {
     @Before
     fun setup() {
         network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
-                TestCordapp.findCordapp("com.template.contracts"),
-                TestCordapp.findCordapp("com.template.flows")
+                TestCordapp.findCordapp("hk.edu.polyu.af.bc.badge.contracts"),
+                TestCordapp.findCordapp("hk.edu.polyu.af.bc.badge.workflows")
         )))
         a = network.createPartyNode()
         b = network.createPartyNode()

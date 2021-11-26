@@ -8,7 +8,7 @@ import org.junit.Test
 import hk.edu.polyu.af.bc.badge.states.TemplateState
 
 class ContractTests {
-    private val ledgerServices: MockServices = MockServices(listOf("com.template"))
+    private val ledgerServices: MockServices = MockServices(listOf("hk.edu.polyu.af.bc.badge"))
     var alice = TestIdentity(CordaX500Name("Alice", "TestLand", "US"))
     var bob = TestIdentity(CordaX500Name("Alice", "TestLand", "US"))
 
