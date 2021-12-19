@@ -1,0 +1,18 @@
+package hk.edu.polyu.af.bc.badge.contracts
+
+import com.r3.corda.lib.tokens.contracts.EvolvableTokenContract
+import net.corda.core.transactions.LedgerTransaction
+
+class BadgeClassContract: EvolvableTokenContract() {
+    companion object {
+        val ID: String = BadgeClassContract::class.java.canonicalName
+    }
+
+    override fun additionalCreateChecks(tx: LedgerTransaction) {
+        // TODO
+    }
+
+    override fun additionalUpdateChecks(tx: LedgerTransaction) {
+        // TODO
+    }
+}
