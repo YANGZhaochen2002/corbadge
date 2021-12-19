@@ -17,4 +17,7 @@ dependencies {
     cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"
     testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
     cordaCompile "$tokens_release_group:tokens-contracts:$tokens_release_version"
+
+
+    testImplementation 'org.hamcrest:hamcrest-all:1.3'
 }
