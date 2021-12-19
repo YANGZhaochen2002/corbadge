@@ -18,6 +18,10 @@ buildscript { //properties that you need to build the project
         //springboot
         spring_boot_version = '2.0.2.RELEASE'
         spring_boot_gradle_plugin_version = '2.0.2.RELEASE'
+
+        // token-sdk
+        tokens_release_version = '1.1'
+        tokens_release_group = 'com.r3.corda.lib.tokens'
     }
 
     repositories {
@@ -46,6 +50,8 @@ allprojects { //Properties that you need to compile your project (The applicatio
         mavenCentral()
         maven { url 'https://software.r3.com/artifactory/corda' }
         maven { url 'https://jitpack.io' }
+        maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-lib' }
+        maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-lib-dev' }
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {

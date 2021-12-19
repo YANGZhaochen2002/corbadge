@@ -49,6 +49,9 @@ dependencies {
 
     // CorDapp dependencies.
     cordapp project(":contracts")
+
+    cordaCompile "$tokens_release_group:tokens-workflows:$tokens_release_version"
+    cordaCompile "$tokens_release_group:tokens-selection:$tokens_release_version"
 }
 
 task integrationTest(type: Test, dependsOn: []) {
