@@ -34,3 +34,13 @@
 | expires | TBI | TBI | If the achievement has some notion of expiry, this indicates a timestamp when a badge should no longer be considered valid. After this time, the badge should be considered expired |
 | revoked | TBI | TBI | whether the assertion is valid |
 | revocationReason | TBI | TBI | Optional published reason for revocation, if revoked |
+
+## Workflows
+
+| Open Badge | Token SDK | Description |
+| ---------- | --------- | ----------- |
+| Create Badge Classes | `CreateBadgeClass` calling `CreateEvolvableToken` subflow | An issuer can *create* a BadgeClass |
+| Issue Assertions | `IssueAssertion` calling `IssueTokens` subflow | An issuer can  *issue* Assertions based on a BadgeClass |
+
+Additional workflows for tasks like update BadgeClasses, revoking Assertions, validating Assertions will be added at a later version.
+

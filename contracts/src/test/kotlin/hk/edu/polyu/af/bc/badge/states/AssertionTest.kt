@@ -12,7 +12,7 @@ internal class AssertionTest {
 
     @Test
     fun `can create an assertion`() {
-        val assertion = Assertion(badgeClass, me, UniqueIdentifier())
+        val assertion = Assertion(badgeClass.toPointer(), me, me, UniqueIdentifier())
 
         assertEquals(assertion.holder, me)
         assertEquals(assertion.issuer, me)

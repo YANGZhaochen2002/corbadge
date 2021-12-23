@@ -61,6 +61,10 @@ allprojects { //Properties that you need to compile your project (The applicatio
         }
     }
 
+    tasks.withType(Test) {
+        useJUnitPlatform()
+    }
+
     jar {
         // This makes the JAR's SHA-256 hash repeatable.
         preserveFileTimestamps = false
