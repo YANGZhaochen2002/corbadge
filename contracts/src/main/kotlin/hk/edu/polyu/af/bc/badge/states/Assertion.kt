@@ -3,17 +3,20 @@ package hk.edu.polyu.af.bc.badge.states
 import com.r3.corda.lib.tokens.contracts.NonFungibleTokenContract
 import com.r3.corda.lib.tokens.contracts.states.NonFungibleToken
 import com.r3.corda.lib.tokens.contracts.types.IssuedTokenType
+import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
+import net.corda.core.identity.Party
 
 @BelongsToContract(NonFungibleTokenContract::class) // use generic NFT-Contract
 class Assertion(
-        badgeClass: BadgeClass,
+        badgeClassPointer: TokenPointer<BadgeClass>,
+        override val issuer: Party, // TODO: issuer must be the same as the issuer in the badgeClass. Check this in contract
         recipient: AbstractParty,
         override val linearId: UniqueIdentifier
 ): NonFungibleToken(
-        IssuedTokenType(badgeClass.maintainers.first(), badgeClass.toPointer<BadgeClass>()),
+        IssuedTokenType(issuer, badgeClassPointer),
         recipient,
         linearId
 )
