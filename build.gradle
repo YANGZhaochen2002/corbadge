@@ -63,6 +63,7 @@ allprojects { //Properties that you need to compile your project (The applicatio
 
     tasks.withType(Test) {
         useJUnitPlatform()
+        testLogging.showStandardStreams = true
     }
 
     jar {
