@@ -55,9 +55,11 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'com.github.manosbatsis.corda.testacles:corda-testacles-mocknetwork:0.24'
     testImplementation 'com.github.manosbatsis.corda.testacles:corda-testacles-nodedriver:0.24'
+    testImplementation("com.github.manosbatsis.corda.testacles:corda-testacles-testcontainers:0.24")
+    testImplementation("org.postgresql:postgresql:42.2.18")
 }
 
-task integrationTest(type: Test, dependsOn: []) {
+task integrationTest(type: Test, dependsOn: [':deployNodes']) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
