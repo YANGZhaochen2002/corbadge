@@ -11,9 +11,9 @@ import net.corda.core.identity.Party
 
 @BelongsToContract(NonFungibleTokenContract::class) // use generic NFT-Contract
 class Assertion(
-        badgeClassPointer: TokenPointer<BadgeClass>,
+        private val badgeClassPointer: TokenPointer<BadgeClass>,
         override val issuer: Party, // TODO: issuer must be the same as the issuer in the badgeClass. Check this in contract
-        recipient: AbstractParty,
+        private val recipient: AbstractParty,
         override val linearId: UniqueIdentifier
 ): NonFungibleToken(
         IssuedTokenType(issuer, badgeClassPointer),
