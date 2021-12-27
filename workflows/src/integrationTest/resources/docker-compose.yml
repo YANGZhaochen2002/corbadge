@@ -1,2 +1,50 @@
-redis:
-  image: redis
+version: '3'
+services:
+  notary:
+    volumes:
+    - /home/feng/mainframer/corbadge/build/nodes/Notary/node.conf:/etc/corda/node.conf
+    - /home/feng/mainframer/corbadge/build/nodes/Notary/certificates:/opt/corda/certificates
+    - /home/feng/mainframer/corbadge/build/nodes/Notary/logs:/opt/corda/logs
+    - /home/feng/mainframer/corbadge/build/nodes/Notary/persistence:/opt/corda/persistence
+    - /home/feng/mainframer/corbadge/build/nodes/Notary/cordapps:/opt/corda/cordapps
+    - /home/feng/mainframer/corbadge/build/nodes/Notary/network-parameters:/opt/corda/network-parameters
+    - /home/feng/mainframer/corbadge/build/nodes/Notary/additional-node-infos:/opt/corda/additional-node-infos
+    - /home/feng/mainframer/corbadge/build/nodes/Notary/drivers:/opt/corda/drivers
+    environment:
+    - ACCEPT_LICENSE=${ACCEPT_LICENSE}
+    ports:
+    - 10003
+    - "2222:2222"
+    image: corda/corda-zulu-java1.8-4.8
+  operator:
+    volumes:
+    - /home/feng/mainframer/corbadge/build/nodes/Operator/node.conf:/etc/corda/node.conf
+    - /home/feng/mainframer/corbadge/build/nodes/Operator/certificates:/opt/corda/certificates
+    - /home/feng/mainframer/corbadge/build/nodes/Operator/logs:/opt/corda/logs
+    - /home/feng/mainframer/corbadge/build/nodes/Operator/persistence:/opt/corda/persistence
+    - /home/feng/mainframer/corbadge/build/nodes/Operator/cordapps:/opt/corda/cordapps
+    - /home/feng/mainframer/corbadge/build/nodes/Operator/network-parameters:/opt/corda/network-parameters
+    - /home/feng/mainframer/corbadge/build/nodes/Operator/additional-node-infos:/opt/corda/additional-node-infos
+    - /home/feng/mainframer/corbadge/build/nodes/Operator/drivers:/opt/corda/drivers
+    environment:
+    - ACCEPT_LICENSE=${ACCEPT_LICENSE}
+    ports:
+    - 10003
+    - "2223:2223"
+    image: corda/corda-zulu-java1.8-4.8
+  uswest1:
+    volumes:
+    - /home/feng/mainframer/corbadge/build/nodes/USWest1/node.conf:/etc/corda/node.conf
+    - /home/feng/mainframer/corbadge/build/nodes/USWest1/certificates:/opt/corda/certificates
+    - /home/feng/mainframer/corbadge/build/nodes/USWest1/logs:/opt/corda/logs
+    - /home/feng/mainframer/corbadge/build/nodes/USWest1/persistence:/opt/corda/persistence
+    - /home/feng/mainframer/corbadge/build/nodes/USWest1/cordapps:/opt/corda/cordapps
+    - /home/feng/mainframer/corbadge/build/nodes/USWest1/network-parameters:/opt/corda/network-parameters
+    - /home/feng/mainframer/corbadge/build/nodes/USWest1/additional-node-infos:/opt/corda/additional-node-infos
+    - /home/feng/mainframer/corbadge/build/nodes/USWest1/drivers:/opt/corda/drivers
+    environment:
+    - ACCEPT_LICENSE=${ACCEPT_LICENSE}
+    ports:
+    - 10003
+    - "2224:2224"
+    image: corda/corda-zulu-java1.8-4.8
