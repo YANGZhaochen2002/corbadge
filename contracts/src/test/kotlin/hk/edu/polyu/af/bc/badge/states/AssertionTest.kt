@@ -3,7 +3,7 @@ package hk.edu.polyu.af.bc.badge.states
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.Party
 import net.corda.testing.core.TestIdentity
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 internal class AssertionTest {

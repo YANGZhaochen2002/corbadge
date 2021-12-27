@@ -10,7 +10,7 @@ import hk.edu.polyu.af.bc.badge.states.Assertion
 import hk.edu.polyu.af.bc.badge.states.BadgeClass
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.testing.node.ledger
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 internal class AssertionContractTest {
     @Test

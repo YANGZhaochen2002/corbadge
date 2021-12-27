@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.Party
 import net.corda.testing.core.TestIdentity
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 internal class BadgeClassTest {
     private val me: Party = TestIdentity.fresh("AFBlockchain").party
