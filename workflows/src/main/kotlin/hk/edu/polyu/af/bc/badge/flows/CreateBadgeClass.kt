@@ -1,12 +1,20 @@
 package hk.edu.polyu.af.bc.badge.flows
 
 import com.r3.corda.lib.tokens.workflows.flows.rpc.CreateEvolvableTokens
+import hk.edu.polyu.af.bc.badge.contracts.BadgeClassContract
 import hk.edu.polyu.af.bc.badge.states.BadgeClass
+import net.corda.core.contracts.Command
+import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.flows.FinalityFlow
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.flows.StartableByService
 import net.corda.core.identity.AbstractParty
 import net.corda.core.transactions.SignedTransaction
+import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.ProgressTracker
+import java.security.PublicKey
+import java.util.*
 
 /**
  * Create a [BadgeClass].
@@ -25,7 +33,50 @@ class CreateBadgeClass(
         private val description: String,
         private val observers: List<AbstractParty> = listOf()
 ): FlowLogic<SignedTransaction>() {
-    override fun call(): SignedTransaction {
-        TODO("Not yet implemented")
+    /**
+     * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
+     * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
+     */
+    companion object {
+        object GENERATING_TRANSACTION : ProgressTracker.Step("Generating transaction based on new BadgeClass.")
+        object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying contract constraints.")
+        object SIGNING_TRANSACTION : ProgressTracker.Step("Signing transaction with our private key.")
+
+        object FINALISING_TRANSACTION : ProgressTracker.Step("Obtaining notary signature and recording transaction.")
+
+        fun tracker() = ProgressTracker(
+                GENERATING_TRANSACTION,
+                VERIFYING_TRANSACTION,
+                SIGNING_TRANSACTION,
+                FINALISING_TRANSACTION
+        )
     }
+    override val progressTracker = tracker()
+    override fun call(): SignedTransaction {
+        //get the corda default notary
+        val notary = serviceHub.networkMapCache.notaryIdentities[0]
+
+        //step 1 create new transation and BadgeClass
+        progressTracker.currentStep = GENERATING_TRANSACTION;
+        val badgeClass = BadgeClass(name, description,ourIdentity, UniqueIdentifier());
+        val txCommand = Command(BadgeClassContract.Commands.Create(),ourIdentity.owningKey);
+        val txBuilder = TransactionBuilder(notary)
+                .addOutputState(badgeClass, BadgeClassContract.ID)
+                .addCommand(txCommand);
+
+        //step 2 verify the transaction is valid
+        progressTracker.currentStep = VERIFYING_TRANSACTION;
+        txBuilder.verify(serviceHub);
+
+        //step 3 sign the transaction
+        val signedTransaction = serviceHub.signInitialTransaction(txBuilder);
+
+        //step 4 Notarise and record the transaction in vaults.
+        progressTracker.currentStep = FINALISING_TRANSACTION;
+        return subFlow(FinalityFlow(signedTransaction, emptyList()));
+
+
+
+    }
+
 }
