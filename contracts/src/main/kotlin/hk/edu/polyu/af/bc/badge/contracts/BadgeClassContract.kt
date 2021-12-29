@@ -17,9 +17,4 @@ class BadgeClassContract: EvolvableTokenContract(), Contract {
     override fun additionalUpdateChecks(tx: LedgerTransaction) {
         // TODO
     }
-
-    // build a Create command for BadgeClassContract
-    interface Commands : CommandData {
-        class Create : Commands
-    }
 }

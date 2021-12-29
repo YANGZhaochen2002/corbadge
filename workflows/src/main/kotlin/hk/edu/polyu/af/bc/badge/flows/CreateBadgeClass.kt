@@ -5,6 +5,7 @@ import com.r3.corda.lib.tokens.workflows.flows.rpc.CreateEvolvableTokens
 import hk.edu.polyu.af.bc.badge.contracts.BadgeClassContract
 import hk.edu.polyu.af.bc.badge.states.BadgeClass
 import net.corda.core.contracts.Command
+import net.corda.core.contracts.TransactionState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
 import net.corda.core.identity.AbstractParty
@@ -41,82 +42,32 @@ class CreateBadgeClass(
     companion object {
         object GENERATING_TRANSACTION : ProgressTracker.Step("Generating transaction based on new BadgeClass.")
 
-        object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying contract constraints.")
+        object FINALISING_TRANSACTION : ProgressTracker.Step("Create evolvable token")
 
-        object SIGNING_TRANSACTION : ProgressTracker.Step("Signing transaction with our private key.")
-
-        object FINALISING_TRANSACTION : ProgressTracker.Step("Obtaining notary signature and recording transaction.")
-
-        object REPORT_MANULLY: ProgressTracker.Step("Start the reportManully")
 
         fun tracker() = ProgressTracker(
-                GENERATING_TRANSACTION,
-                VERIFYING_TRANSACTION,
-                SIGNING_TRANSACTION,
-                FINALISING_TRANSACTION
+            GENERATING_TRANSACTION,
+            FINALISING_TRANSACTION
         )
     }
+
     override val progressTracker = tracker()
+
     @Suspendable
     override fun call(): SignedTransaction {
         //get the corda default notary
         val notary = serviceHub.networkMapCache.notaryIdentities[0]
 
         //step 1 create new transation and BadgeClass
-        progressTracker.currentStep = GENERATING_TRANSACTION;
-        val badgeClass = BadgeClass(name, description,ourIdentity, UniqueIdentifier());
-        val txCommand = Command(BadgeClassContract.Commands.Create(),ourIdentity.owningKey);
-        val txBuilder = TransactionBuilder(notary)
-                .addOutputState(badgeClass, BadgeClassContract.ID)
-                .addCommand(txCommand);
+        progressTracker.currentStep = GENERATING_TRANSACTION
+        val newBadgeClass = BadgeClass(name, description, ourIdentity, UniqueIdentifier())
 
-        //step 2 verify the transaction is valid
-        progressTracker.currentStep = VERIFYING_TRANSACTION;
-        txBuilder.verify(serviceHub);
-
-        //step 3 sign the transaction
-        val signedTransaction = serviceHub.signInitialTransaction(txBuilder);
+        val transactionState = TransactionState<BadgeClass>(newBadgeClass, notary = notary)
 
 
-        //step 4 Notarise and record the transaction in vaults.
-        progressTracker.currentStep = FINALISING_TRANSACTION;
-        subFlow(FinalityFlow(signedTransaction, emptyList()));
+        //Step 2 create evolvable token
+        progressTracker.currentStep = FINALISING_TRANSACTION
+        return (subFlow(CreateEvolvableTokens(transactionState = transactionState, observers = observers as List<Party>)))
 
-        //step 5 recorde the state in the obesrvers vaults
-        for (party in observers) {
-            subFlow(ReportManually(signedTransaction,party as Party))
-        }
-        return signedTransaction;
-    }
-}
-
-@InitiatingFlow
-class ReportManually(val signedTransaction: SignedTransaction, val regulator: Party) : FlowLogic<Unit>() {
-    companion object {
-
-        object SEND_TRANSACTION: ProgressTracker.Step("Send the transaction to observes")
-
-        fun tracker() = ProgressTracker(
-                SEND_TRANSACTION
-        )
-    }
-    override val progressTracker = tracker()
-
-    @Suspendable
-    override fun call() {
-        val session = initiateFlow(regulator)
-        progressTracker.currentStep = SEND_TRANSACTION;
-        session.send(signedTransaction)
-    }
-}
-
-@InitiatedBy(ReportManually::class)
-class ReportManuallyResponder(val counterpartySession: FlowSession) : FlowLogic<Unit>() {
-    @Suspendable
-    override fun call() {
-        val signedTransaction = counterpartySession.receive<SignedTransaction>().unwrap { it }
-        // The national regulator records all of the transaction's states using
-        // `recordTransactions` with the `ALL_VISIBLE` flag.
-        serviceHub.recordTransactions(StatesToRecord.ALL_VISIBLE, listOf(signedTransaction))
     }
 }
