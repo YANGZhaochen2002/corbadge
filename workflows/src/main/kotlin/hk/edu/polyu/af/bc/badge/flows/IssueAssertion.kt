@@ -1,14 +1,30 @@
 package hk.edu.polyu.af.bc.badge.flows
 
 import co.paralleluniverse.fibers.Suspendable
+import com.r3.corda.lib.tokens.contracts.NonFungibleTokenContract
+import com.r3.corda.lib.tokens.contracts.states.AbstractToken
+import com.r3.corda.lib.tokens.contracts.states.EvolvableTokenType
+import com.r3.corda.lib.tokens.contracts.states.FungibleToken
+import com.r3.corda.lib.tokens.contracts.states.NonFungibleToken
+import com.r3.corda.lib.tokens.contracts.types.IssuedTokenType
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
+import com.r3.corda.lib.tokens.contracts.types.TokenType
+import com.r3.corda.lib.tokens.contracts.utilities.issuedBy
+import com.r3.corda.lib.tokens.workflows.flows.issue.addIssueTokens
+import com.r3.corda.lib.tokens.workflows.flows.rpc.CreateEvolvableTokens
+import com.r3.corda.lib.tokens.workflows.flows.rpc.IssueTokens
 import hk.edu.polyu.af.bc.badge.states.Assertion
 import hk.edu.polyu.af.bc.badge.states.BadgeClass
-import net.corda.core.flows.FlowLogic
-import net.corda.core.flows.StartableByRPC
-import net.corda.core.flows.StartableByService
+import net.corda.core.contracts.Command
+import net.corda.core.contracts.TransactionState
+import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.flows.*
 import net.corda.core.identity.AbstractParty
+import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
+import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.unwrap
+import org.intellij.lang.annotations.Flow
 
 /**
  * Issue an [Assertion].
@@ -21,13 +37,29 @@ import net.corda.core.transactions.SignedTransaction
  * @property recipient recipient of this [Assertion]
  */
 @StartableByService
+@InitiatingFlow
 @StartableByRPC
-class IssueAssertion(
-        private val badgeClassPointer: TokenPointer<BadgeClass>,
-        private val recipient: AbstractParty
-): FlowLogic<SignedTransaction>() {
-    @Suspendable
-    override fun call(): SignedTransaction {
-        TODO("Not yet implemented")
+class IssueAssertion (
+    private var badgeClassPointer: TokenPointer<BadgeClass>,
+    private var recipient: AbstractParty
+) : FlowLogic<SignedTransaction>() {
+    fun twoPartyInitiatingFlow(recipient: AbstractParty){
+        this.recipient=recipient
     }
+
+        @Suspendable
+        override fun call(): SignedTransaction {
+            val issuer: Party = ourIdentity
+            //notary
+            val notary = serviceHub.networkMapCache.notaryIdentities[0]
+
+            //output
+            val assertion= Assertion(badgeClassPointer, issuer, recipient, UniqueIdentifier())
+
+            val parties:List<Party> = listOf(issuer,recipient as Party)
+            val Tokens:List<AbstractToken> = listOf(assertion)
+            return subFlow(IssueTokens(Tokens,parties))
+        }
+
+
 }
