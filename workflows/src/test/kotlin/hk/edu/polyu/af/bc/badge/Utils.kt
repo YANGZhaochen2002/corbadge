@@ -1,37 +1,13 @@
 package hk.edu.polyu.af.bc.badge
 
-import com.github.manosbatsis.corda.testacles.mocknetwork.config.MockNetworkConfig
-import com.r3.corda.lib.tokens.contracts.NonFungibleTokenContract
-import com.r3.corda.lib.tokens.workflows.flows.rpc.IssueTokens
-import hk.edu.polyu.af.bc.badge.contracts.BadgeClassContract
-import hk.edu.polyu.af.bc.badge.flows.CreateBadgeClass
-import hk.edu.polyu.af.bc.badge.states.BadgeClass
+import net.corda.core.concurrent.CordaFuture
 import net.corda.core.contracts.ContractState
-import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
-import net.corda.testing.common.internal.testNetworkParameters
-import net.corda.testing.node.MockNodeParameters
+import net.corda.core.utilities.getOrThrow
+import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.StartedMockNode
-import java.lang.AssertionError
+import java.time.Duration
 
-/**
- * Common [MockNetworkConfig] configuration
- */
-fun mockNetworkConfig() = MockNetworkConfig(
-        listOf(MockNodeParameters(legalName = CordaX500Name.parse("O=InstituteA, L=Athens, C=GR")),
-                MockNodeParameters(legalName = CordaX500Name.parse("O=InstituteB, L=Athens, C=GR")),
-                MockNodeParameters(legalName = CordaX500Name.parse("O=LearnerA, L=Athens, C=GR")),
-                MockNodeParameters(legalName = CordaX500Name.parse("O=LearnerB, L=Athens, C=GR")),
-                MockNodeParameters(legalName = CordaX500Name.parse("O=ObserverA, L=Athens, C=GR")),
-                MockNodeParameters(legalName = CordaX500Name.parse("O=ObserverB, L=Athens, C=GR"))),
-        cordappProjectPackage = CreateBadgeClass::class.java.`package`.name,
-        cordappPackages = listOf<String>(IssueTokens::class.java.`package`.name,
-                NonFungibleTokenContract::class.java.`package`.name,
-                CreateBadgeClass::class.java.`package`.name,
-                BadgeClassContract::class.java.`package`.name,
-                BadgeClass::class.java.`package`.name),
-        threadPerNode = true,
-        networkParameters = testNetworkParameters(minimumPlatformVersion = 4))
 
 /**
  * Get the first output of type `clazz` from the tx.
@@ -43,8 +19,15 @@ inline fun <reified T: ContractState> SignedTransaction.output(clazz: Class<T>):
 /**
  * Assert the node's vault contain the given state.
  */
-fun <T: ContractState> StartedMockNode.assertHaveState(state: T) {
-    val flag = services.vaultService.queryBy(state.javaClass).states.isNotEmpty()
+fun <T: ContractState> StartedMockNode.assertHaveState(state: T, comparator: (s1: T, s2: T) -> Boolean) {
+    val hasNone = services.vaultService.queryBy(state.javaClass).states.none { comparator(state, it.state.data) }
+    if (hasNone) throw AssertionError("State not found in ${info.legalIdentities[0]}: $state")
+}
 
-    if (!flag) throw AssertionError("No state found: $state")
+/**
+ * Wrap `getOrThrow(Duration)` by inserting a network run.
+ */
+fun <V> CordaFuture<V>.getOrThrow(network: MockNetwork, rounds: Int = -1, timeout: Duration? = null): V {
+    network.runNetwork(rounds);
+    return getOrThrow(timeout)
 }
