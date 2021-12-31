@@ -1,8 +1,11 @@
 package hk.edu.polyu.af.bc.badge
 
 import com.github.manosbatsis.corda.testacles.mocknetwork.config.MockNetworkConfig
+import com.r3.corda.lib.tokens.contracts.NonFungibleTokenContract
 import com.r3.corda.lib.tokens.workflows.flows.rpc.IssueTokens
+import hk.edu.polyu.af.bc.badge.contracts.BadgeClassContract
 import hk.edu.polyu.af.bc.badge.flows.CreateBadgeClass
+import hk.edu.polyu.af.bc.badge.states.BadgeClass
 import net.corda.core.contracts.ContractState
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
@@ -22,7 +25,11 @@ fun mockNetworkConfig() = MockNetworkConfig(
                 MockNodeParameters(legalName = CordaX500Name.parse("O=ObserverA, L=Athens, C=GR")),
                 MockNodeParameters(legalName = CordaX500Name.parse("O=ObserverB, L=Athens, C=GR"))),
         cordappProjectPackage = CreateBadgeClass::class.java.`package`.name,
-        cordappPackages = listOf<String>(IssueTokens::class.java.`package`.name),
+        cordappPackages = listOf<String>(IssueTokens::class.java.`package`.name,
+                NonFungibleTokenContract::class.java.`package`.name,
+                CreateBadgeClass::class.java.`package`.name,
+                BadgeClassContract::class.java.`package`.name,
+                BadgeClass::class.java.`package`.name),
         threadPerNode = true,
         networkParameters = testNetworkParameters(minimumPlatformVersion = 4))
 
@@ -37,7 +44,7 @@ inline fun <reified T: ContractState> SignedTransaction.output(clazz: Class<T>):
  * Assert the node's vault contain the given state.
  */
 fun <T: ContractState> StartedMockNode.assertHaveState(state: T) {
-    val flag = services.vaultService.queryBy(state.javaClass).states.map { it.state.data }.contains(state)
-    //TODO: change to standard assertion error message
-    if (!flag) throw AssertionError("Node $this does not contain $state")
+    val flag = services.vaultService.queryBy(state.javaClass).states.isNotEmpty()
+
+    if (!flag) throw AssertionError("No state found: $state")
 }

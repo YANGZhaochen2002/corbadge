@@ -43,23 +43,12 @@ class IssueAssertion (
     private var badgeClassPointer: TokenPointer<BadgeClass>,
     private var recipient: AbstractParty
 ) : FlowLogic<SignedTransaction>() {
-    fun twoPartyInitiatingFlow(recipient: AbstractParty){
-        this.recipient=recipient
-    }
-
         @Suspendable
         override fun call(): SignedTransaction {
             val issuer: Party = ourIdentity
-            //notary
-            val notary = serviceHub.networkMapCache.notaryIdentities[0]
+            val assertion = Assertion(badgeClassPointer, issuer, recipient, UniqueIdentifier())
+            val tokens = listOf(assertion)
 
-            //output
-            val assertion= Assertion(badgeClassPointer, issuer, recipient, UniqueIdentifier())
-
-            val parties:List<Party> = listOf(issuer,recipient as Party)
-            val Tokens:List<AbstractToken> = listOf(assertion)
-            return subFlow(IssueTokens(Tokens,parties))
+            return subFlow(IssueTokens(tokens))
         }
-
-
 }
