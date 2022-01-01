@@ -16,9 +16,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertTrue
 
-@Disabled("Error: multiple jar files found for the same flow class")
 @ExtendWith(NodeDriverNetworkExtension::class)
 class DriverBasedTest {
     companion object {
@@ -69,6 +69,10 @@ class DriverBasedTest {
         logger.info("Transaction: {}", tx.toString())
         val assertion = tx.coreTransaction.outputsOfType(Assertion::class.java)[0]
         logger.info("Assertion: {}", assertion.toString())
+
+        val waitTime = 1
+        logger.info("Waiting {}s for vaults to reflect changes", waitTime)
+        TimeUnit.SECONDS.sleep(waitTime.toLong())
 
         assert(issProxy.vaultQuery(Assertion::class.java).states.stream().anyMatch { (state) -> state.data.linearId == assertion.linearId })
         assert(recProxy.vaultQuery(Assertion::class.java).states.stream().anyMatch { (state) -> state.data.linearId == assertion.linearId })

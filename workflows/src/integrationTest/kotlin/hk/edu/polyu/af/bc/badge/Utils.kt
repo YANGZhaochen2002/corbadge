@@ -3,7 +3,6 @@ package hk.edu.polyu.af.bc.badge
 import com.github.manosbatsis.corda.testacles.nodedriver.NodeParamsHelper
 import com.github.manosbatsis.corda.testacles.nodedriver.config.NodeDriverNodesConfig
 import com.github.manosbatsis.corda.testacles.nodedriver.config.SimpleNodeDriverNodesConfig
-import hk.edu.polyu.af.bc.badge.flows.CreateBadgeClass
 import net.corda.testing.core.ALICE_NAME
 import net.corda.testing.core.BOB_NAME
 
@@ -12,7 +11,6 @@ val nodeParamsHelper = NodeParamsHelper()
 
 val customNodeDriverConfig: NodeDriverNodesConfig =
         SimpleNodeDriverNodesConfig (
-                cordappProjectPackage = CreateBadgeClass::class.java.`package`.name,
                 cordappPackages = listOf(
                         "hk.edu.polyu.af.bc.badge.contracts",
                         "hk.edu.polyu.af.bc.badge.flows",
