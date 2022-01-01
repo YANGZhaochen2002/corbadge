@@ -58,8 +58,13 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
 }
 
-task integrationTest(type: Test, dependsOn: []) {
+task integrationTest(type: Test, dependsOn: [':bundleCordapps']) {
     useJUnitPlatform()
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
+
+tasks.getByPath(":workflows:build") dependsOn(":workflows:integrationTest")
+
+archivesBaseName='corbadge-workflows'
+version='0.1.0-SNAPSHOT'

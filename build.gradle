@@ -176,3 +176,20 @@ configure(publishProjects) { subproject ->
         }
     }
 }
+
+/**
+ * Only copy jars for Corbadge
+ */
+task bundleCordapps(dependsOn: ['jar']) {
+    doLast {
+        copy {
+            from 'contracts/build/libs/'
+            into 'cordapps/'
+        }
+
+        copy {
+            from 'workflows/build/libs/'
+            into 'cordapps/'
+        }
+    }
+}
