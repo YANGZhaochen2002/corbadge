@@ -25,6 +25,10 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.unwrap
 import org.intellij.lang.annotations.Flow
+import java.time.Instant
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 /**
  * Issue an [Assertion].
@@ -43,12 +47,18 @@ class IssueAssertion (
     private var badgeClassPointer: TokenPointer<BadgeClass>,
     private var recipient: AbstractParty
 ) : FlowLogic<SignedTransaction>() {
-        @Suspendable
-        override fun call(): SignedTransaction {
-            val issuer: Party = ourIdentity
-            val assertion = Assertion(badgeClassPointer, issuer, recipient, UniqueIdentifier())
-            val tokens = listOf(assertion)
-
-            return subFlow(IssueTokens(tokens))
+    @Suspendable
+    override fun call(): SignedTransaction {
+        var revoked:Boolean=false
+        val issuerofBadgeclass:Party=badgeClassPointer.pointer.resolve(serviceHub).state.data.getIssuer
+        val issuer: Party = ourIdentity
+        if(issuerofBadgeclass.equals(issuer)){
+            revoked=true
         }
+
+        val assertion= Assertion(badgeClassPointer, issuer, recipient, Date(),revoked,UniqueIdentifier())
+        val tokens = listOf(assertion)
+
+        return subFlow(IssueTokens(tokens))
+    }
 }
